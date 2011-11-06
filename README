@@ -1,0 +1,13 @@
+Linebreaker
+----------------
+
+Java library for line breaking
+
+
+ - Introduction
+This project aims to be a small java library for managing line breaking in
+collections.
+This library should work like a "group by" statement: you define when the
+elements in the collection should be grouped (using a comparator) and then
+you can define the actions to be executed for the first and the last element
+of the collection and for each element.
