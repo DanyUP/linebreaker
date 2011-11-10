@@ -1,4 +1,5 @@
-Linebreaker
+----------------
+  Linebreaker
 ----------------
 
 Java library for line breaking
@@ -11,3 +12,92 @@ This library should work like a "group by" statement: you define when the
 elements in the collection should be grouped (using a comparator) and then
 you can define the actions to be executed for the first and the last element
 of the collection and for each element.
+
+ - Usage
+ Using linebreaker should be quite simple.
+ Suppose you have a list of employees like this:
+
+Name	Surname	Role		Sector
+--------------------------------------
+John	Smith	Manager		SectorA
+Frank	Powell	Employee	SectorA
+Arthur	Herbert	Employee	SectorA
+Michael	Smith	Employee 	SectorA
+John	Doe		Manager		SectorB
+Michael	Herbert	Manager		SectorC
+
+For siplicity suppose that each row is stored in a String array.
+For now you need to have the elements ordered. In the future will be implemented
+an auto-ordering option.
+
+Let's try to have the same list grouped by the "Sector" field.
+
+First we need to implement the interface BreakRule:
+		BreakRule<String[]> rule = new BreakRule<String[]>() {
+			
+			int numElem = 0; //Count for the elements in each group
+			
+			//This function it's used to find elements in the same group
+			public int compare(String[] str1, String[] str2) {
+				return str1[3].compareTo(str2[3]); //Group by the 4th field (Sector)
+			}
+			
+			//Function called for the first element of each group
+			public void doFirst(String[] firstElement) {
+				//Reset counter
+				numElem=0;
+				
+				//Writing the header of the group
+				System.out.println("Sector: "+firstElement[3]);
+				System.out.println("Name\tSurname\tRole\t");
+				System.out.println("--------------------------------------------------");
+				
+			}
+			
+			//Function called for each object in order (including the first and the last element of each group)
+			public void doCurrent(String[] element) {
+				//Writing each row
+				System.out.println(element[0] + "\t" + element[1] + "\t" + element[2] + "\t");
+				numElem++;
+			}
+			
+			//Function called for the last element of each group
+			public void doLast(String[] lastElement) {
+				//Writing the footer of each group with the number of items stored in numElem
+				System.out.println("Total: "+numElem);
+				System.out.println();
+			}
+			
+		};
+		
+Then we can create a new line breaker object, we add the rule created and we start the operation
+passing the list of employees as argument:
+
+		LineBreaker<String[]> breaker = new LineBreaker<String[]>();
+		breaker.addRule(rule);
+		breaker.execute(elements);
+		
+		
+		
+And here's the output:
+
+Sector: SectorA
+Name	Surname	Role	
+--------------------------------------------------
+John	Smith	Manager	
+Frank	Powell	Employee	
+Arthur	Herbert	Employee	
+Total: 3
+
+Sector: SectorB
+Name	Surname	Role	
+--------------------------------------------------
+John	Doe	Manager	
+Michael	Smith	Employee	
+Total: 2
+
+Sector: SectorC
+Name	Surname	Role	
+--------------------------------------------------
+Michael	Herbert	Manager	
+Total: 1
